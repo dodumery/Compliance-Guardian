@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { AuditStatus, AuditReport } from "../types";
 
@@ -6,7 +5,12 @@ export class GeminiService {
   private ai: GoogleGenAI;
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    // 여기가 핵심 변경 사항입니다! Vercel에 설정한 이름과 똑같이 맞췄습니다.
+    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || '';
+    if (!apiKey) {
+      console.error("API Key is missing! Check .env or Vercel settings.");
+    }
+    this.ai = new GoogleGenAI({ apiKey: apiKey });
   }
 
   async runAudit(regulation: string, scenario: string, useSearch: boolean): Promise<AuditReport> {
@@ -38,13 +42,12 @@ export class GeminiService {
       - (위반 시 해결책 또는 향후 방지책 제안)
     `;
 
-    // Using gemini-3-pro-preview for complex reasoning and higher accuracy
+    // Using gemini-2.0-flash for faster response and stability (changed from preview)
     const response = await this.ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
+      model: 'gemini-2.0-flash',
       contents: prompt,
       config: {
-        tools: useSearch ? [{ googleSearch: {} }] : undefined,
-        thinkingConfig: { thinkingBudget: 4000 } // Reserve budget for complex reasoning
+        // tools: useSearch ? [{ googleSearch: {} }] : undefined, // search tool disabled for stability
       },
     });
 
@@ -71,7 +74,7 @@ export class GeminiService {
     const cleanBase64 = base64Image.split(',')[1] || base64Image;
     
     const response = await this.ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
+      model: 'gemini-2.0-flash',
       contents: {
         parts: [
           {
