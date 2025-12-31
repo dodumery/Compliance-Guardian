@@ -1,0 +1,7 @@
+{
+  "name": "Compliance Guardian",
+  "description": "An AI-powered regulation auditor that analyzes cases against specific rules with clinical precision, featuring visual evidence editing and search grounding.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
